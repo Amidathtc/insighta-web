@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     .update(codeVerifier)
     .digest("base64url");
 
-  const redirectUri = `${WEB_PORTAL_URL}/api/auth/callback`;
+  // const redirectUri = `${WEB_PORTAL_URL}/api/auth/callback`;
+  const redirectUri = `${WEB_PORTAL_URL.replace(/\/$/, '')}/api/auth/callback`;
 
   const githubUrl =
     `https://github.com/login/oauth/authorize` +
