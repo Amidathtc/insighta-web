@@ -28,16 +28,15 @@ export async function GET(request: NextRequest) {
     `&code_challenge=${encodeURIComponent(codeChallenge)}` +
     `&code_challenge_method=S256`;
 
-  const response = NextResponse.redirect(githubUrl);
-
   const cookieOpts = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true, // Vercel is always HTTPS
     sameSite: "lax" as const,
-    maxAge: 300, // 5 minutes
+    maxAge: 600, // 10 minutes
     path: "/",
   };
 
+  const response = NextResponse.redirect(githubUrl);
   response.cookies.set("oauth_state", state, cookieOpts);
   response.cookies.set("pkce_verifier", codeVerifier, cookieOpts);
 
