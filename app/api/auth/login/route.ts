@@ -6,7 +6,7 @@ import crypto from "crypto";
 // set HTTP-only cookies on the web portal's own domain.
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const WEB_PORTAL_URL =
-  process.env.NEXT_PUBLIC_WEB_PORTAL_URL || "http://localhost:3001";
+  process.env.WEB_PORTAL_URL || process.env.NEXT_PUBLIC_WEB_PORTAL_URL || "http://localhost:3001";
 
 export async function GET(request: NextRequest) {
   const state = crypto.randomBytes(16).toString("hex");

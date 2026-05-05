@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3000";
 const WEB_PORTAL_URL =
-  process.env.NEXT_PUBLIC_WEB_PORTAL_URL || "http://localhost:3001";
+  process.env.WEB_PORTAL_URL || process.env.NEXT_PUBLIC_WEB_PORTAL_URL || "http://localhost:3001";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const redirectUri = `${WEB_PORTAL_URL}/api/auth/callback`;
+    const cleanWebUrl = WEB_PORTAL_URL.replace(/\/$/, "");
+    const redirectUri = `${cleanWebUrl}/api/auth/callback`;
 
     // Exchange code with the backend — mode=web tells backend to return JSON
     // (instead of redirecting). We also pass the redirect_uri so GitHub can
