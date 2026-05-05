@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
     // verify it matches the one used in the authorization request.
     const params = new URLSearchParams({
       code,
+      state: returnedState || "",
       code_verifier: codeVerifier || "",
       mode: "web",
       redirect_uri: redirectUri,
