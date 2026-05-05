@@ -13,6 +13,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/?error=missing_code_or_state", request.url));
   }
 
+  // Read cookies for validation
+  const storedState = request.cookies.get("oauth_state")?.value;
+  const codeVerifier = request.cookies.get("pkce_verifier")?.value;
+
   if (!storedState) {
     return NextResponse.redirect(new URL("/?error=missing_oauth_cookie", request.url));
   }
