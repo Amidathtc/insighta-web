@@ -9,12 +9,20 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const returnedState = searchParams.get("state");
 
-  // Validate state to prevent CSRF
-  const storedState = request.cookies.get("oauth_state")?.value;
-  const codeVerifier = request.cookies.get("pkce_verifier")?.value;
+  if (!code || !returnedState) {
+    return NextResponse.redirect(new URL("/?error=missing_code_or_state", request.url));
+  }
 
-  if (!code || !returnedState || returnedState !== storedState) {
-    return NextResponse.redirect(new URL("/?error=auth_failed", request.url));
+  if (!storedState) {
+    return NextResponse.redirect(new URL("/?error=missing_oauth_cookie", request.url));
+  }
+
+  if (!codeVerifier) {
+    return NextResponse.redirect(new URL("/?error=missing_pkce_cookie", request.url));
+  }
+
+  if (returnedState !== storedState) {
+    return NextResponse.redirect(new URL("/?error=state_mismatch", request.url));
   }
 
   try {
