@@ -13,16 +13,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/?error=missing_code_or_state", request.url));
   }
 
-  // Read cookies for validation
-  const storedState = request.cookies.get("oauth_state")?.value;
-  const codeVerifier = request.cookies.get("pkce_verifier")?.value;
+  // Read bundled auth session
+  const authSessionStr = request.cookies.get("auth_session")?.value;
+  let storedState: string | undefined;
+  let codeVerifier: string | undefined;
+
+  if (authSessionStr) {
+    try {
+      const parsed = JSON.parse(authSessionStr);
+      storedState = parsed.state;
+      codeVerifier = parsed.codeVerifier;
+    } catch {
+      // Ignore parse errors
+    }
+  }
 
   if (!storedState) {
-    return NextResponse.redirect(new URL("/?error=missing_oauth_cookie", request.url));
+    return NextResponse.redirect(new URL("/?error=missing_auth_session", request.url));
   }
 
   if (!codeVerifier) {
-    return NextResponse.redirect(new URL("/?error=missing_pkce_cookie", request.url));
+    return NextResponse.redirect(new URL("/?error=missing_pkce_verifier", request.url));
   }
 
   if (returnedState !== storedState) {
@@ -65,8 +76,9 @@ export async function GET(request: NextRequest) {
 
     const cookieOpts = {
       httpOnly: true,
-      secure: isProd,
-      sameSite: "strict" as const,
+      secure: true,
+      sameSite: "lax" as const,
+      maxAge: 600,
       path: "/",
     };
 
@@ -79,9 +91,8 @@ export async function GET(request: NextRequest) {
       maxAge: 300, // 5 minutes
     });
 
-    // Clear PKCE cookies
-    response.cookies.delete("oauth_state");
-    response.cookies.delete("pkce_verifier");
+    // Clear auth session cookie
+    response.cookies.delete("auth_session");
 
     return response;
   } catch (err: any) {

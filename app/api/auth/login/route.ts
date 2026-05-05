@@ -30,15 +30,15 @@ export async function GET(request: NextRequest) {
 
   const cookieOpts = {
     httpOnly: true,
-    secure: true, // Vercel is always HTTPS
+    secure: true,
     sameSite: "lax" as const,
-    maxAge: 600, // 10 minutes
+    maxAge: 600,
     path: "/",
   };
 
   const response = NextResponse.redirect(githubUrl);
-  response.cookies.set("oauth_state", state, cookieOpts);
-  response.cookies.set("pkce_verifier", codeVerifier, cookieOpts);
+  // Bundle both into one cookie to avoid multi-cookie redirect issues
+  response.cookies.set("auth_session", JSON.stringify({ state, codeVerifier }), cookieOpts);
 
   return response;
 }
